@@ -105,8 +105,10 @@ void gsw_apply_font(int size) {
 
 
 
-void gsweb_initconf(void) {
-    init_geoip();
+void gsweb_initconf(int geoipenable) {
+    if(geoipenable) {
+        init_geoip();
+    }
     if(myenctype < 0) {
         msip = 0;
         if(!enctypex_query[0]) enctypex_query = ENCTYPEX_QUERY_GSLIST;
@@ -2442,7 +2444,7 @@ client_quit:
 
 
 
-void gsweb(in_addr_t ip, u16 port) {
+void gsweb(in_addr_t ip, u16 port, int geoipenable) {
     in_addr_t gsw_localip;
     struct  sockaddr_in peer;
     int     sdl,
@@ -2470,7 +2472,7 @@ void gsweb(in_addr_t ip, u16 port) {
     if(listen(sdl, SOMAXCONN)
       < 0) std_err();
 
-    gsweb_initconf();
+    gsweb_initconf(geoipenable);
     gsweb_loadconf();
 
     fprintf(stderr, "\n  Gslist web interface ready\n");

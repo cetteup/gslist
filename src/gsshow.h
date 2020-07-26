@@ -84,6 +84,7 @@ void show_help(void) {
         "               refresh=0        disable the refresh buffer/button\n"
         "               admin=127.0.0.1  IP of the admin with access to all the sections\n"
 #endif
+        "-g             enable geoip lookups for certain queries\n"
         "-q             quiet output, many informations will be not showed\n"
         "-x S[:P]       specify a different master server (S) and port (P is optional)\n"
         "               default is %s:%hu\n"

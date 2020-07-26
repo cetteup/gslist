@@ -303,6 +303,7 @@ typedef struct {
     u8      scantype;   // scan only, 1 for gsweb and single queries
     #define QUERY_SCANTYPE_SINGLE   0
     #define QUERY_SCANTYPE_GSWEB    1
+    int     geoipenable;
     u8      *data;      // scan only, if 0
     ipdata_t    *ipdata;    // scan only, if 1
     u8      type;       // query number
@@ -354,6 +355,7 @@ int     megaquery       = -1,
         ignore_errors   = 0,
         sql             = 0,
         quiet           = 0,
+        geoipenable     = 0,
         myenctype       = -1,   // 0, 1 and 2 or -1 for the X type
         force_natneg    = 0,
         enctypex_type   = 1,
@@ -645,6 +647,10 @@ int main(int argc, char *argv[]) {
                 quiet = 1;
                 break;
             }
+            case 'g': {
+                geoipenable = 1;
+                break;
+            }
             case 'x': {
                 i++;
                 if(!argv[i]) {
@@ -909,13 +915,13 @@ int main(int argc, char *argv[]) {
     gslist_hInstance = GetModuleHandle(NULL);
     gswip = "127.0.0.1";
     if(!gswport) gswport = GSWPORT;
-    gsweb(resolv(gswip), gswport);
+    gsweb(resolv(gswip), gswport, geoipenable);
     return(0);
 #endif
 #ifdef GSWEB
     if(gswip) {
         if(!gswport) gswport = GSWPORT;
-        gsweb(resolv(gswip), gswport);
+        gsweb(resolv(gswip), gswport, geoipenable);
         return(0);
     }
 #endif
@@ -1083,7 +1089,7 @@ handle_servers:
     }
     if((megaquery >= 0) || ((megaquery == -2) && multi_query_custom_binary)) {
         fprintf(stderr, "- querying servers:\n");
-        mega_query_scan(gamestr, megaquery, ipbuffer, servers, 2);   // 3 is the default timeout
+        mega_query_scan(gamestr, megaquery, ipbuffer, servers, 2, geoipenable);   // 3 is the default timeout
 #ifdef SQL
         if(sql) gssql_later();
 #endif
@@ -1160,7 +1166,7 @@ void prepare_query(u8 *gamestr, int query, u8 *ip, u8 *port) {
     } else {
         p = port;
     }
-    multi_query(gamestr, query, resolv(ip), atoi(p));
+    multi_query(gamestr, query, resolv(ip), atoi(p), geoipenable);
     fputc('\n', stderr);
 }
 

@@ -339,7 +339,7 @@ GSLIST_QUERY_T(generic_query) {
         }
     }
 
-    if(gqd->ipdata) {
+    if(gqd->geoipenable && gqd->ipdata) {
         init_geoip();
         if(geoipx) {
             ipdata->country = (void *)GeoIP_country_code_by_addr(geoipx, myinetntoa(ipdata->ip));
@@ -642,7 +642,7 @@ u8 *switch_type_query(int type, int *querylen, generic_query_data_t *gqd, GSLIST
 
 
     /* this is the code called when you use the -i, -I or -d option */
-void multi_query(u8 *gamestr, int type, in_addr_t ip, u16 port) {
+void multi_query(u8 *gamestr, int type, in_addr_t ip, u16 port, int geoipenable) {
     GSLIST_QUERY_T(*func);
     generic_query_data_t  gqd;
     struct  sockaddr_in peer;
@@ -697,6 +697,7 @@ void multi_query(u8 *gamestr, int type, in_addr_t ip, u16 port) {
         len = recvfrom(sd, buff, sizeof(buff) - 1, 0, NULL, NULL);
         if(len > 0) {
             gqd.scantype = QUERY_SCANTYPE_GSWEB;
+            gqd.geoipenable = geoipenable;
             gqd.data     = malloc(len + 1);
             gqd.data[0]  = 0;
             gqd.ipdata   = NULL;
@@ -777,16 +778,19 @@ quick_thread(multi_scan_reply, generic_query_data_t *gqd) {
         if((*gqd->func)(buff, len, gqd) < 0) continue;
 
         if(gqd->scantype == QUERY_SCANTYPE_SINGLE) {
-            init_geoip();
+            if(gqd->geoipenable) {
+                init_geoip();
 
-            if(geoipx) {
-                tmp = gqd->data + strlen(gqd->data);
-                sprintf(
-                    tmp,
-                    "%scountry\\%s",
-                    (tmp[-1] == '\\') ? "" : "\\",
-                    GeoIP_country_code_by_addr(geoipx, ipaddr));
+                if(geoipx) {
+                    tmp = gqd->data + strlen(gqd->data);
+                    sprintf(
+                        tmp,
+                        "%scountry\\%s",
+                        (tmp[-1] == '\\') ? "" : "\\",
+                        GeoIP_country_code_by_addr(geoipx, ipaddr));
+                }
             }
+            
             tmp = gqd->data + strlen(gqd->data);
             sprintf(
                 tmp,
@@ -914,7 +918,7 @@ no_ping:
 
 
     /* sends query packets to all the hosts we have received (ipbuff) */
-int mega_query_scan(u8 *gamestr, int type, void *ipbuff, int iplen, u32 ping) {
+int mega_query_scan(u8 *gamestr, int type, void *ipbuff, int iplen, u32 ping, int geoipenable) {
     GSLIST_QUERY_T(*func);
     thread_id   tid;
     ipport_t    *ipport;
@@ -938,15 +942,16 @@ int mega_query_scan(u8 *gamestr, int type, void *ipbuff, int iplen, u32 ping) {
 
     sd = udpsocket();
 
-    gqd.sock     = sd;
-    gqd.maxping  = ping;
-    gqd.func     = (void *)func;
-    gqd.scantype = QUERY_SCANTYPE_SINGLE;
-    gqd.peer     = &peer;
-    gqd.ipport   = ipport;
-    gqd.iplen    = iplen;
-    gqd.ping     = malloc(iplen * 4);
-    gqd.done     = malloc(iplen);
+    gqd.sock        = sd;
+    gqd.maxping     = ping;
+    gqd.func        = (void *)func;
+    gqd.scantype    = QUERY_SCANTYPE_SINGLE;
+    gqd.geoipenable = geoipenable;
+    gqd.peer        = &peer;
+    gqd.ipport      = ipport;
+    gqd.iplen       = iplen;
+    gqd.ping        = malloc(iplen * 4);
+    gqd.done        = malloc(iplen);
     peer.sin_family = AF_INET;
 
     tid = 0;

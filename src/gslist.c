@@ -715,7 +715,7 @@ int main(int argc, char *argv[]) {
                 i++;
                 if(!argv[i]) {
                     fprintf(stderr, "\n"
-                        "Error: you must select a querytype number\n"
+                        "Error: you must select a listtype number\n"
                         "\n");
                     exit(1);
                 }

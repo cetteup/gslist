@@ -569,10 +569,12 @@ void gslist_step_1(u8 *gamestr, u8 *filter) {
         fprintf(stderr,
             "Gamename:    %s\n"
             "Enctype:     %d\n"
+            "Querytype:   %d\n"
             "Filter:      %s\n"
             "Resolving    %s ... ",
             gamestr,
             myenctype,
+            enctypex_type,
             filter,
             mshost);
     }

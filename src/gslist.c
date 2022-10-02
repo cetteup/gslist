@@ -711,6 +711,17 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             }
+            case 'T': {
+                i++;
+                if(!argv[i]) {
+                    fprintf(stderr, "\n"
+                        "Error: you must select a querytype number\n"
+                        "\n");
+                    exit(1);
+                }
+                enctypex_type = atoi(argv[i]);
+                break;
+            }
             case 'c': {
                 show_countries();
                 return(0);

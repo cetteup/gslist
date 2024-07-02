@@ -108,7 +108,7 @@ typedef uint32_t    u32;
 
 
 
-#define VER             "0.8.11b"
+#define VER             "0.8.11c"
 static const u8         MS[]            = "master.gamespy.com";
 static const u8         MSGAMENAME[]    = "gamespy2\\gamever\\20603020";
 static const u8         MSGAMEKEY[]     = "d4kZca";

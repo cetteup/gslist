@@ -312,7 +312,13 @@ GSLIST_QUERY_T(generic_query) {
                     if(tmp) *tmp = 0;   // don't handle other '\n'
                 }
             } else {
-                if((!*data && (data != empty_par)) || !strcmp(data, "queryid") || !strcmp(data, "final")) break;
+                if((!*data && (data != empty_par)) || !strcmp(data, "final")) break;
+                if(!strcmp(data, "queryid")) {
+                    // Skip the query id value
+                    data = next + 1, nt++;
+                    next = strchr(data, gqd->chr);
+                    continue;
+                }
             }
             enctypex_data_cleaner(data, data, -1); // format
             datalen += sprintf(gqd->data + datalen, "\\%s", data);
@@ -333,7 +339,13 @@ GSLIST_QUERY_T(generic_query) {
             val(data, ipbit, ipdata);
             ipbit = 0;
         } else {
-            if((!*data && (data != empty_par)) || !strcmp(data, "queryid") || !strcmp(data, "final")) break;
+            if((!*data && (data != empty_par)) || !strcmp(data, "final")) break;
+            if(!strcmp(data, "queryid")) {
+                // Skip the query id value
+                data = next + 1, nt++;
+                next = strchr(data, gqd->chr);
+                continue;
+            }
             ipbit = par(data, skip);
             skip |= (1 << ipbit);
         }
